@@ -17,10 +17,10 @@ defaultimageb = cv2.imencode('.png', defaultimage)[1].tobytes()
 playing = False
 
 col_left = [
-    [sg.Text('Framerate:', s=(12,1), justification='left', font ='Helvetica 12'), sg.Input()],
-    [sg.Text('Resolution:', s=(12,1), justification='left', font ='Helvetica 12'), sg.Input()],
-    [sg.Text('Crop Fields:', s=(12,1), justification='left', font ='Helvetica 12'), sg.Input()],
-    [sg.Text('Trim Fields:', s=(12,1), justification='left', font ='Helvetica 12'), sg.Input()],
+    [sg.Text('Framerate:', s=(12,1), justification='left', font ='Helvetica 12'), sg.Combo([120,60,45,30,15,10,5,1], s=(16, 1))],
+    [sg.Text('Resolution:', s=(12,1), justification='left', font ='Helvetica 12'), sg.Combo(['2560x1440','1920x1080', '1280x720', '854x480', '640x360', '426x240'], s=(16,1))],
+    [sg.Text('Crop Fields:', s=(12,1), justification='left', font ='Helvetica 12'), sg.Input(s=(8,1)),sg.Input(s=(8,1))],
+    [sg.Text('Trim Fields:', s=(12,1), justification='left', font ='Helvetica 12'), sg.Input(s=(8,1)),sg.Input(s=(8,1))],
 ]
 
 col_right = [
@@ -38,7 +38,7 @@ layout = [
             ['&File', ['&Open','E&xit']]
         ]),
         sg.Column([
-            [sg.Push(), sg.Text('Movie Viewer', size=(20,1), justification='center', font='Helvetica 20'), sg.Push()],
+            [sg.Push(), sg.Text('Movie Editor', size=(20,1), justification='center', font='Helvetica 20'), sg.Push()],
             [sg.HorizontalSeparator()],
             [sg.Column(col_left), sg.Column(col_right)]
         ],)
@@ -80,6 +80,8 @@ while True:
             thumbnail = getThumb(curmovie, int(values["FRAMEINPUT"]))
             window["THUMB"].update(data = thumbnail)
     elif(event == 'PLAYPAUSE'):
+        if curmovie == None:
+            continue
         if playing:
             window["PLAYPAUSE"].update(image_filename="smallplay.png")
             print("pausing")
