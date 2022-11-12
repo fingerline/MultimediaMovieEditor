@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def RateChange(moviein):
+def rateChange(moviein):
     cap = cv2.VideoCapture(moviein)
     print(f"CV_CAP_PROP_FRAME_WIDTH: '{cap.get(cv2.CAP_PROP_FRAME_WIDTH)}'")
     print(f"CV_CAP_PROP_FRAME_HEIGHT : '{cap.get(cv2.CAP_PROP_FRAME_HEIGHT)}'")
@@ -31,4 +31,4 @@ def RateChange(moviein):
 
     cv2.destroyAllWindows()
 
-RateChange('sample.avi')
+rateChange('sample.avi')
