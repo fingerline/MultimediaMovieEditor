@@ -2,33 +2,27 @@ import cv2
 import numpy as np
 
 
-def rateChange(moviein):
-    cap = cv2.VideoCapture(moviein)
-    print(f"CV_CAP_PROP_FRAME_WIDTH: '{cap.get(cv2.CAP_PROP_FRAME_WIDTH)}'")
-    print(f"CV_CAP_PROP_FRAME_HEIGHT : '{cap.get(cv2.CAP_PROP_FRAME_HEIGHT)}'")
-    print(f"CAP_PROP_FPS : '{cap.get(cv2.CAP_PROP_FPS)}'")
-    print(f"CAP_PROP_POS_MSEC : '{cap.get(cv2.CAP_PROP_POS_MSEC)}'")
-    print(f"CAP_PROP_FRAME_COUNT  : '{cap.get(cv2.CAP_PROP_BRIGHTNESS)}'")
-    print(f"CAP_PROP_BRIGHTNESS : '{cap.get(cv2.CAP_PROP_BRIGHTNESS)}'")
-    print(f"CAP_PROP_CONTRAST : '{cap.get(cv2.CAP_PROP_CONTRAST)}'")
-    print(f"CAP_PROP_SATURATION : '{cap.get(cv2.CAP_PROP_SATURATION)}'")
-    print(f"CAP_PROP_HUE : '{cap.get(cv2.CAP_PROP_HUE)}'")
-    print(f"CAP_PROP_GAIN  : '{cap.get(cv2.CAP_PROP_GAIN)}'")
-    print(f"CAP_PROP_CONVERT_RGB : '{cap.get(cv2.CAP_PROP_CONVERT_RGB)}'")
+def rateChange(framelistin, startrate, endrate, frameblend = False):
+    ## Input framelist is played at startrate. Frames need to be skipped to maintain video length
+    ## (and, ideally, content) to fit to a new, lower frame rate.
+    frameratio = startrate / endrate
+    framelistout = []
+    targetframe = 0
+    if frameratio < 1: ##upconversion
+        while targetframe < len(framelistin)-1:
+            flooredint = int( np.floor(targetframe)) 
+            if frameblend:
+                blendweight = targetframe - flooredint
+                blendedframe = cv2.addWeighted(framelistin[flooredint], (1 - blendweight), framelistin[flooredint + 1], blendweight, 0)
+                framelistout.append(blendedframe)
+            else:
+                framelistout.append(framelistin[flooredint])
+            targetframe += frameratio
 
-
-    while cap.isOpened():
-        success, frame = cap.read()
-        if success:
-            resized = cv2.resize(frame, (640, 360), interpolation=cv2.INTER_AREA)
-            cv2.imshow('Frame', resized)
-
-            cv2.waitKey(1)
-        else:
-            break
-    
-    cap.release()
-
-    cv2.destroyAllWindows()
-
-rateChange('sample.avi')
+    else: ##Downconversion
+        for frameindex, frame in enumerate(framelistin):
+            if frameindex >= targetframe:
+                framelistout.append(frame)
+                targetframe += frameratio
+        
+    return framelistout
