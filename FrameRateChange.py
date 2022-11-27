@@ -17,6 +17,7 @@ def rateChange(framelistin, startrate, endrate, frameblend = False):
                 framelistout.append(blendedframe)
             else:
                 framelistout.append(framelistin[flooredint])
+            print(f"Frame {targetframe} appended. Blend? {frameblend}")
             targetframe += frameratio
 
     else: ##Downconversion
@@ -24,5 +25,7 @@ def rateChange(framelistin, startrate, endrate, frameblend = False):
             if frameindex >= targetframe:
                 framelistout.append(frame)
                 targetframe += frameratio
+                print(f"Frame {frameindex} appended.")
+
         
     return framelistout
