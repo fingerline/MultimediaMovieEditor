@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
-from memory_profiler import profile
 
-@profile
+
 def rateChange(framelistin, startrate, endrate, frameblend = False):
     ## Input framelist is played at startrate. Frames need to be skipped to maintain video length
     ## (and, ideally, content) to fit to a new, lower frame rate.
