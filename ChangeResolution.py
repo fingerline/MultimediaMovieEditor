@@ -1,7 +1,5 @@
 import cv2
-from memory_profiler import profile
 
-@profile
 def resChange(framelistin,desw,desh):
 
     outframes = []

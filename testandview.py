@@ -33,6 +33,7 @@ def composeFrameList(movie):
 moviename = 'sample.avi'
 fps, framelist = composeFrameList(moviename)
 changedres = resChange(framelist, 640, 360)
+changedfps = rateChange(changedres, fps, 60)
 
-readout(changedres, 30)
+readout(changedfps, 60)
     
