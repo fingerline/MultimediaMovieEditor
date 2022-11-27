@@ -8,7 +8,6 @@ def frCrop(frame, top, bottom, left, right):
     return frame[top:bottom, left:right]
 
 def frBlend(frame1, frame2, adv):
-    print(f"Frame1: {frame1}")
     return cv2.addWeighted(frame1, (1 - adv), frame2, adv, 0)
 
 
