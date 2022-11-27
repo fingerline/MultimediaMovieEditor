@@ -1,7 +1,6 @@
 import cv2
 from ChangeResolution import resChange
 from FrameRateChange import rateChange
-from memory_profiler import profile
 
 ## takes in an list of frames and displays them as a video
 def readout(framelist,fps):
@@ -12,7 +11,6 @@ def readout(framelist,fps):
         cv2.waitKey(framedelay)
     cv2.destroyAllWindows()
 
-@profile
 def composeFrameList(movie):
     cap = cv2.VideoCapture(movie)
     fps = cap.get(cv2.CAP_PROP_FPS)
