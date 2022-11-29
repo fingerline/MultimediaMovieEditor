@@ -86,7 +86,6 @@ def framePick(reader, values):
     written = 0
     
     while reader.isOpened():
-        print(f"Frameindex: {frameindex} framestart: {framestart} framend: {frameend}")
         ## Trimming
         if frameindex < framestart:
             frameindex += 1
@@ -118,16 +117,12 @@ def framePick(reader, values):
                     break
 
         else: ##upsampling
-            print(f"Selected Upsampling.")
             floored = int(np.floor(targetframe))
-            print(f"\tTarget frame: {targetframe}")
             while floored == frameindex:
                 selectframe = None;
                 if values["BLN"]:
-                    print(f"\t\tBlending this frame with next to create frame {targetframe}.")
                     selectframe = frBlend(thisframe, nextframe, targetframe-floored)
                 else:
-                    print(f"Selecting frame {frameindex} for requested frame {targetframe}")
                     selectframe = thisframe
                 modifyAndWrite(selectframe, writer, values)
                 written += 1
