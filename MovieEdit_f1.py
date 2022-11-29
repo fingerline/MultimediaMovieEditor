@@ -99,6 +99,7 @@ def framePick(reader, values):
         
         ## determining desirable frames to modify and encode for fps changes
         if not upsampling: ## This is true with no FPS change as well
+            print(f"Not upsampling. Target frame: {targetframe} frame index: {frameindex} frame ratio: {frameratio}")
             if frameindex < targetframe: ## Skip this frame
                 thisframe = nextframe
                 success, nextframe = reader.read()
@@ -112,6 +113,7 @@ def framePick(reader, values):
                 thisframe = nextframe
                 success, nextframe = reader.read()
                 frameindex += 1
+                targetframe += frameratio
                 if not success:
                     break
 
