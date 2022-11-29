@@ -86,9 +86,11 @@ def framePick(reader, values):
     written = 0
     
     while reader.isOpened():
+        print(f"Frameindex: {frameindex} framestart: {framestart} framend: {frameend}")
         ## Trimming
         if frameindex < framestart:
             frameindex += 1
+            targetframe = frameindex
             thisframe = nextframe
             success, nextframe = reader.read()
             if not success:
@@ -96,10 +98,8 @@ def framePick(reader, values):
             continue
         if frameindex > frameend:
             break
-        
         ## determining desirable frames to modify and encode for fps changes
         if not upsampling: ## This is true with no FPS change as well
-            print(f"Not upsampling. Target frame: {targetframe} frame index: {frameindex} frame ratio: {frameratio}")
             if frameindex < targetframe: ## Skip this frame
                 thisframe = nextframe
                 success, nextframe = reader.read()
@@ -118,12 +118,16 @@ def framePick(reader, values):
                     break
 
         else: ##upsampling
+            print(f"Selected Upsampling.")
             floored = int(np.floor(targetframe))
+            print(f"\tTarget frame: {targetframe}")
             while floored == frameindex:
                 selectframe = None;
                 if values["BLN"]:
+                    print(f"\t\tBlending this frame with next to create frame {targetframe}.")
                     selectframe = frBlend(thisframe, nextframe, targetframe-floored)
                 else:
+                    print(f"Selecting frame {frameindex} for requested frame {targetframe}")
                     selectframe = thisframe
                 modifyAndWrite(selectframe, writer, values)
                 written += 1
