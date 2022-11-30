@@ -35,7 +35,7 @@ col_left = [
 ]
 
 col_right = [
-    [sg.Image(key = "THUMB", data = defaultimageb, s = (426, 240))],
+    [sg.Image(key = "THUMB", data = defaultimageb, s = (426, 240), )],
     [   sg.Button(image_filename = 'smallplay.png', key = "PLAYPAUSE", font = 'Verdana 11', button_color = '#524626'),
         sg.Slider(range = (0, 1), orientation = "h", default_value = 0, expand_x = True, disable_number_display = True,
         relief = sg.RELIEF_FLAT, key = "SLIDER", enable_events = True, background_color = '#524626'),
@@ -51,7 +51,7 @@ layout = [
         sg.Column([
             [sg.Push(), sg.Text('Multimedia Movie Editor', size = (25, 1), justification = 'center', font = 'Courier 20', background_color = '#7d674b'), sg.Push()],
             [sg.HorizontalSeparator(color = 'yellow')],
-            [sg.Column(col_left, background_color = '#7d674b', size = (500, 175)), sg.Column(col_right, background_color = '#7d674b')]
+            [sg.Column(col_left, background_color = '#7d674b', size = (500, 175)), sg.Column(col_right, background_color = '#7d674b', element_justification='center')]
         ],)
     ]
 ]
@@ -68,7 +68,15 @@ def getThumb(movie, frame):
         print(f"Error getting thumbnail at frame {frame}")
     else:
         movie.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        return cv2.imencode('.png', cv2.resize(outframe, (426, 240)))[1].tobytes()
+        origheight = int(movie.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        origwidth = int(movie.get(cv2.CAP_PROP_FRAME_WIDTH))
+        thumbWidth = min(426, origwidth)
+        thumbHeight = min(240, origheight)
+        if origwidth/origheight == 1:
+            thumbWidth = 240
+            thumbHeight = 240            
+        print(f"width: {thumbWidth} height {thumbHeight} Origs: {movie.get(cv2.CAP_PROP_FRAME_WIDTH)} x {movie.get(cv2.CAP_PROP_FRAME_HEIGHT)}")
+        return cv2.imencode('.png', cv2.resize(outframe, (thumbWidth, thumbHeight)))[1].tobytes()
 
 ## Picks source frames that will make it into the final video based on the chosen FPS, and composes in-between frames if blending is enabled.
 def framePick(reader, values, filename):
@@ -230,9 +238,13 @@ while True:
         status, frame = curmovie.read()
         if not status:
             playing = False
-            print("End of movie")
         else:
-            outframe = cv2.imencode('.png', cv2.resize(frame, (426, 240)))[1].tobytes()
+            height, width, layers = frame.shape
+            outframe = None
+            if height-width == 0:
+                outframe = cv2.imencode('.png', cv2.resize(frame, (240, 240)))[1].tobytes()
+            else:
+                outframe = cv2.imencode('.png', cv2.resize(frame, (426, 240)))[1].tobytes()
             window["THUMB"].update(data = outframe)
             window["SLIDER"].update(value = curmovie.get(cv2.CAP_PROP_POS_FRAMES))
             window["FRAMEINPUT"].update(value = int(curmovie.get(cv2.CAP_PROP_POS_FRAMES)))
