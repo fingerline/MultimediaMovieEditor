@@ -31,7 +31,7 @@ col_left = [
     [sg.Text('Trim Fields:', s = (12, 1), justification = 'left', font = 'Verdana 12', background_color = '#7d674b', text_color = 'yellow'),
      sg.Input(s = (8, 1), key = "TR1", default_text = 'start', background_color = '#c9ab85'),
      sg.Input(s = (8, 1), key = "TR2", default_text = 'end', background_color = '#c9ab85')],
-    [sg.Button('Process', button_color = '#524626')]
+    [sg.FileSaveAs('Process', key = 'Process', default_extension='.avi', enable_events=True, button_color = '#524626')]
 ]
 
 col_right = [
@@ -71,7 +71,7 @@ def getThumb(movie, frame):
         return cv2.imencode('.png', cv2.resize(outframe, (426, 240)))[1].tobytes()
 
 ## Picks source frames that will make it into the final video based on the chosen FPS, and composes in-between frames if blending is enabled.
-def framePick(reader, values):
+def framePick(reader, values, filename):
     framestart = int(values["TR1"])
     frameend = int(values["TR2"])
     desfps = values["FPS"]
@@ -82,7 +82,7 @@ def framePick(reader, values):
     success, nextframe = reader.read()
     targetframe = 0
     frameindex = 0
-    writer = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), desfps, (int(values['RSW']), int(values['RSH'])))
+    writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), desfps, (int(values['RSW']), int(values['RSH'])))
     written = 0
     
     while reader.isOpened():
@@ -134,6 +134,7 @@ def framePick(reader, values):
             if not success:
                 break
     print(f"Frames written. Final video length: {written}")
+    writer.release()
 
 ## Frames selected by FramePick are sent to this function, which writes the video after modifying the frame by the given parameters.
 def modifyAndWrite(frame, writer, values):
@@ -158,6 +159,10 @@ while True:
 
     elif(event == 'Open'):
         retval = sg.popup_get_file("Please choose a movie to edit:", button_color = '#524626')
+        if retval == '' or retval == None:
+            print("No movie selected.")
+            continue
+
         curmovie = cv2.VideoCapture(retval)
         frameout = []
 
@@ -184,9 +189,14 @@ while True:
         desiredframerate = values["FPS"]
         desiredresolutionH = int(values["RSH"])
         desiredresolutionW = int(values["RSW"])
-        print(f"Processing...\n\tDesired Frame Rate: {desiredframerate}" + f"\n\tDesired Resolution: {desiredresolutionW} x {desiredresolutionH}" + f"\n\tDesired Trim: [{values['TR1']}-{values['TR2']}]")
+        filename = values["Process"].split('/')[-1]
+        print(f"Processing...\n\tDesired Frame Rate: {desiredframerate}" + f"\n\tDesired Resolution: {desiredresolutionW} x {desiredresolutionH}" +
+        f"\n\tDesired Trim: [{values['TR1']}-{values['TR2']}]\n\tFile Name: {filename}")
+        window['Process'].update("Processing...", disabled = True)
+        window.refresh()
         curmovie.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        framePick(curmovie, values)
+        framePick(curmovie, values,filename)
+        window['Process'].update("Process", disabled = False)
         
     elif(event == 'SLIDERRELEASE'):
         window["FRAMEINPUT"].update(value = int(values["SLIDER"]))
