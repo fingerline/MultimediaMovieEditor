@@ -4,7 +4,7 @@ import numpy as np
 from FrameUtils import *
 
 curmovie = None
-defaultimage = cv2.resize(cv2.imread('default.png'), (426, 240))
+defaultimage = cv2.resize(cv2.imread('assets/default.png'), (426, 240))
 defaultimageb = cv2.imencode('.png', defaultimage)[1].tobytes()
 playing = False
 cm_height = None
@@ -31,12 +31,12 @@ col_left = [
     [sg.Text('Trim Fields:', s = (12, 1), justification = 'left', font = 'Verdana 12', background_color = '#7d674b', text_color = 'yellow'),
      sg.Input(s = (8, 1), key = "TR1", default_text = 'start', background_color = '#c9ab85'),
      sg.Input(s = (8, 1), key = "TR2", default_text = 'end', background_color = '#c9ab85')],
-    [sg.FileSaveAs('Process', key = 'Process', default_extension='.avi', enable_events=True, button_color = '#524626')]
+    [sg.FileSaveAs('Process', key = 'Process', default_extension='.avi', enable_events=True, initial_folder="./output" , button_color = '#524626')]
 ]
 
 col_right = [
     [sg.Image(key = "THUMB", data = defaultimageb, s = (426, 240), )],
-    [   sg.Button(image_filename = 'smallplay.png', key = "PLAYPAUSE", font = 'Verdana 11', button_color = '#524626'),
+    [   sg.Button(image_filename = 'assets/smallplay.png', key = "PLAYPAUSE", font = 'Verdana 11', button_color = '#524626'),
         sg.Slider(range = (0, 1), orientation = "h", default_value = 0, expand_x = True, disable_number_display = True,
         relief = sg.RELIEF_FLAT, key = "SLIDER", enable_events = True, background_color = '#524626'),
         sg.Input("0", s = (7, 1), key = "FRAMEINPUT", background_color = '#c9ab85'),
@@ -75,7 +75,6 @@ def getThumb(movie, frame):
         if origwidth/origheight == 1:
             thumbWidth = 240
             thumbHeight = 240            
-        print(f"width: {thumbWidth} height {thumbHeight} Origs: {movie.get(cv2.CAP_PROP_FRAME_WIDTH)} x {movie.get(cv2.CAP_PROP_FRAME_HEIGHT)}")
         return cv2.imencode('.png', cv2.resize(outframe, (thumbWidth, thumbHeight)))[1].tobytes()
 
 ## Picks source frames that will make it into the final video based on the chosen FPS, and composes in-between frames if blending is enabled.
@@ -197,7 +196,7 @@ while True:
         desiredframerate = values["FPS"]
         desiredresolutionH = int(values["RSH"])
         desiredresolutionW = int(values["RSW"])
-        filename = values["Process"].split('/')[-1]
+        filename = values["Process"]
         print(f"Processing...\n\tDesired Frame Rate: {desiredframerate}" + f"\n\tDesired Resolution: {desiredresolutionW} x {desiredresolutionH}" +
         f"\n\tDesired Trim: [{values['TR1']}-{values['TR2']}]\n\tFile Name: {filename}")
         window['Process'].update("Processing...", disabled = True)
@@ -226,12 +225,10 @@ while True:
         if curmovie == None:
             continue
         if playing:
-            window["PLAYPAUSE"].update(image_filename = "smallplay.png")
-            print("pausing")
+            window["PLAYPAUSE"].update(image_filename = "assets/smallplay.png")
             playing = False
         else:
-            window["PLAYPAUSE"].update(image_filename = "smallpause.png")
-            print("playing")
+            window["PLAYPAUSE"].update(image_filename = "assets/smallpause.png")
             playing = True
 
     if playing:
